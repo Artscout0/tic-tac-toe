@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "tic-tac-toe-Websocket": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
