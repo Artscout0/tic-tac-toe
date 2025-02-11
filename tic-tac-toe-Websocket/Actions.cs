@@ -2,11 +2,12 @@
 {
     internal enum Actions
     {
-        Nothing,
-        Response,
-        Broadcast,
-        ConnectWith,
-        MessageOther,
-        InformOther
+        Nothing,      // Do nothing
+        Response,     // Send to person who sent the message
+        Broadcast,    // Send to everyone
+        ConnectWith,  // Create a game and connect both players
+        MessageOther, // Message other person in game
+        InformOther,  // Message move to other
+        Message       // Message someone
     }
 }

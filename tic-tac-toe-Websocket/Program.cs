@@ -7,19 +7,19 @@ namespace tic_tac_toe_Websocket
 {
     internal class Program
     {
-        private static readonly ConcurrentDictionary<string, Client> Clients = new ConcurrentDictionary<string, Client>();
+        public static readonly ConcurrentDictionary<string, Client> Clients = new ConcurrentDictionary<string, Client>();
+
+        public static List<Game> Games = new List<Game>();
 
         /// <summary>
         /// Main loop for the websocket.
         /// 
         /// Most lines of the output to do with a client will be structured: "Client UUID(username) did something"
         /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             HttpListener httpListener = new HttpListener();
-            httpListener.Prefixes.Add("http://localhost:443/");
+            httpListener.Prefixes.Add("http://localhost:8888/");
             httpListener.Start();
 
             Console.WriteLine("Listening for WebSocket connections...");
@@ -32,6 +32,8 @@ namespace tic_tac_toe_Websocket
                 if (!context.Request.IsWebSocketRequest)
                 {
                     context.Response.StatusCode = 400;
+                    context.Response.StatusDescription = "Must be a websocket connection";
+
                     context.Response.Close();
                     continue;
                 }
@@ -44,7 +46,7 @@ namespace tic_tac_toe_Websocket
                 string clientId = Guid.NewGuid().ToString();
                 Client client = new Client(webSocket);
                 Clients.TryAdd(clientId, client);
-
+                
                 Console.WriteLine($"Client {clientId} connected. Total clients: {Clients.Count}");
 
                 _ = HandleClient(clientId, client);
@@ -52,15 +54,14 @@ namespace tic_tac_toe_Websocket
         }
 
         /// <summary>
-        /// Handles a single client when they join.
+        /// Handles a single client when they join. Listens to their demands, and works accordingly.
         /// </summary>
-        /// <param name="clientId"></param>
-        /// <param name="webSocket"></param>
-        /// <returns></returns>
+        /// <param name="clientId">The GUID of the client that joined, assigned on join</param>
+        /// <param name="client">The client itself, with all related data</param>
         private static async Task HandleClient(string clientId, Client client)
         {
             byte[] buffer = new byte[8192];
-
+            Client client2;
             try
             {
                 while (client.WebSocket.State == WebSocketState.Open)
@@ -81,19 +82,59 @@ namespace tic_tac_toe_Websocket
                             case Actions.Nothing:
                                 break;
                             case Actions.Response:
-                                client.WebSocket.SendAsync(Encoding.UTF8.GetBytes(message), WebSocketMessageType.Text, true, CancellationToken.None);
+                                await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes(response.Item2), WebSocketMessageType.Text, true, CancellationToken.None);
                                 break;
                             case Actions.Broadcast:
-                                BroadcastMessage(response.Item2);
+                                await BroadcastMessage(response.Item2);
                                 break;
                             case Actions.ConnectWith:
-                                throw new NotImplementedException();
+
+                                client2 = Clients.FirstOrDefault(kvp => kvp.Value.Name == response.Item2).Value;
+
+                                if (client2 == default || client2 == client)
+                                {
+                                    await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes("\"Type\":\"Error\", \"Errors\":[\"User with this name doesn't exist, or isn't among the users you can challenge.\"]"), WebSocketMessageType.Text, true, CancellationToken.None);
+                                    continue;
+                                }
+
+                                Games.Add(new Game(client, client2));
+
+                                await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes(response.Item2), WebSocketMessageType.Text, true, CancellationToken.None);
+
                                 break;
                             case Actions.MessageOther:
-                                throw new NotImplementedException();
+
+                                Game game = Games.FirstOrDefault(game => game.IsPlayer(client));
+
+                                if (game == default)
+                                {
+                                    await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes("\"Type\":\"Error\", \"Errors\":[\"You aren't in a game.\"]"), WebSocketMessageType.Text, true, CancellationToken.None);
+                                    continue;
+                                }
+
+                                await game.GetOther(client).WebSocket.SendAsync(Encoding.UTF8.GetBytes(response.Item2), WebSocketMessageType.Text, true, CancellationToken.None);
+
                                 break;
                             case Actions.InformOther:
                                 throw new NotImplementedException();
+                                break;
+                            case Actions.Message:
+
+                                string[] temp = response.Item2.Split(';');
+
+                                Console.WriteLine(temp);
+
+                                string clientName = temp[0];
+                                string msg = temp[1];
+
+                                client2 = Clients.FirstOrDefault(kvp => kvp.Value.Name == clientName).Value;
+
+                                if (client2 == default || client2 == client)
+                                {
+                                    client.WebSocket.SendAsync(Encoding.UTF8.GetBytes("\"Type\":\"Error\", \"Errors\":[\"User with this name doesn't exist, or isn't among the users you can message.\"]"), WebSocketMessageType.Text, true, CancellationToken.None);
+                                }
+
+                                client2.WebSocket.SendAsync(Encoding.UTF8.GetBytes(msg), WebSocketMessageType.Text, true, CancellationToken.None);
                                 break;
                             default:
                                 break;
