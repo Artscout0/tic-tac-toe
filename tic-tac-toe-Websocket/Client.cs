@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
 using System.Net.WebSockets;
@@ -7,7 +8,6 @@ using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace tic_tac_toe_Websocket
 {
@@ -127,17 +127,35 @@ namespace tic_tac_toe_Websocket
                         return (Actions.Response, JsonSerializer.Serialize(response, options));
                     }
                     response.Type = "Message";
+                    response.From = Name;
                     response.Message = messageObject.Payload;
 
                     Console.WriteLine(messageObject.OtherName + ";" + JsonSerializer.Serialize(response, options));
 
-                    return (Actions.Message, messageObject.OtherName+";"+JsonSerializer.Serialize(response, options));
+                    return (Actions.Message, messageObject.OtherName + ";" + JsonSerializer.Serialize(response, options));
 
                 // Make a move in a game
                 case "Move":
-                    throw new NotImplementedException();
 
-                    break;
+                    List<string> errors = new List<string>();
+
+                    if (Name == null)
+                    {
+                        errors.Add("Must be logged in");
+                    }
+                    if (messageObject.Payload == null)
+                    {
+                        errors.Add("Payload must contain move");
+                    }
+
+                    if (errors.Count > 0)
+                    { 
+                        response.Type = "Error";
+                        response.Errors = errors;
+                        return (Actions.Response, JsonSerializer.Serialize(response, options));
+                    }
+
+                    return (Actions.InformOther, messageObject.Payload);
 
                 // Get every online user
                 case "CheckOnline":
@@ -170,7 +188,7 @@ namespace tic_tac_toe_Websocket
         }
 
         public static bool operator ==(Client c1, Client c2)
-        { 
+        {
             // If either are null, we say they aren't the same.
             if (Equals(c1, null) || Equals(c2, null)) return false;
 
@@ -218,6 +236,10 @@ namespace tic_tac_toe_Websocket
             public string? Message { get; set; }
 
             public string? IdentifiedAs { get; set; }
+
+            public string? Move { get; set; }
+
+            public string? From { get; set; }
 
             public List<string>? UsersOnline { get; set; }
 

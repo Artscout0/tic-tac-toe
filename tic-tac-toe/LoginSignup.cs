@@ -13,10 +13,10 @@ namespace tic_tac_toe
         {
             if (_signingUp)
             {
-                // add account to DB
+                // add account to DB, with input validation and stuff
             } else
             {
-                // find account in DB check pwd hash
+                // find account in DB check pwd hash, with input validation and stuff
             }
 
             this.Hide();

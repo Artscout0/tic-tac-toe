@@ -2,14 +2,15 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Resources;
+using tic_tac_toe_Utils;
 
 namespace tic_tac_toe
 {
     internal class GameManager
     {
         protected short[] _tileData = new short[] { 0, 0, 0, 
-                                                  0, 0, 0, 
-                                                  0, 0, 0 };
+                                                    0, 0, 0, 
+                                                    0, 0, 0 };
 
         public Bitmap[] Images { get => IntToImages(boardDataToB10(_tileData)).Item1; }
 
@@ -57,18 +58,7 @@ namespace tic_tac_toe
         /// <returns>a tuple, with the list of images to use, that should map to a board, and an array of short integers, which is what is supposed to be stored.</returns>
         public static (Bitmap[], short[]) IntToImages(int state)
         {
-            int state_b3 = ChangeIntBase(state, 10, 3);
-
-            string state_string = state_b3.ToString();
-
-            // add leading zeros
-            while (state_string.Length < 9)
-            {
-                state_string = '0' + state_string;
-            }
-
-            char[] chars = state_string.ToCharArray();
-            short[] nums = chars.Select(c => (short)(c - '0')).ToArray(); // a list of 0s, 1s, and 2s.
+            short[] nums = Utils.IntToShortArray(state); 
             //Debug.WriteLine(string.Join(' ', nums));
 
             Bitmap[] bmps = new Bitmap[nums.Length]; // should be 9 always, but C# works in mysterious ways.
@@ -109,46 +99,7 @@ namespace tic_tac_toe
         public static int boardDataToB10(short[] nums)
         {
             string num = string.Join("", nums);
-            return ChangeIntBase(Convert.ToInt32(num), 3, 10);
-        }
-
-        /// <summary>
-        /// Works as long as both bases are 2 <= b <= 10. Used here as I often need to convert b10 to b3, and b3 to b10.
-        /// </summary>
-        /// <param name="num">The original number</param>
-        /// <param name="ogBase">The base of the original number</param>
-        /// <param name="newBase">the base of the return</param>
-        /// <returns></returns>
-        protected static int ChangeIntBase(int num, int ogBase, int newBase)
-        {
-            // Step 1: Convert num from the original base to base 10
-            int decimalValue = 0;
-            int power = 0;
-            while (num > 0)
-            {
-                int digit = num % 10;
-                if (digit >= ogBase)
-                {
-                    throw new ArgumentException("Invalid digit for the original base.");
-                }
-                decimalValue += digit * (int)Math.Pow(ogBase, power);
-                power++;
-                num /= 10;
-            }
-
-
-            // Step 2: Convert the base 10 value to the new base
-            int result = 0;
-            int multiplier = 1;
-            while (decimalValue > 0)
-            {
-                int remainder = decimalValue % newBase;
-                result += remainder * multiplier;
-                multiplier *= 10;
-                decimalValue /= newBase;
-            }
-
-            return result;
+            return Utils.ChangeIntBase(Convert.ToInt32(num), 3, 10);
         }
 
         protected bool Any(Func<int, bool> func)

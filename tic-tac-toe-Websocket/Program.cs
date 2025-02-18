@@ -55,6 +55,7 @@ namespace tic_tac_toe_Websocket
 
         /// <summary>
         /// Handles a single client when they join. Listens to their demands, and works accordingly.
+        /// Can only process one request at a time by user. 
         /// </summary>
         /// <param name="clientId">The GUID of the client that joined, assigned on join</param>
         /// <param name="client">The client itself, with all related data</param>
@@ -62,6 +63,7 @@ namespace tic_tac_toe_Websocket
         {
             byte[] buffer = new byte[8192];
             Client client2;
+            Game game;
             try
             {
                 while (client.WebSocket.State == WebSocketState.Open)
@@ -79,14 +81,21 @@ namespace tic_tac_toe_Websocket
 
                         switch (response.Item1)
                         {
+                            // The second item of the response is ignored.
                             case Actions.Nothing:
                                 break;
+
+                            // The second item of the response is sent back
                             case Actions.Response:
                                 await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes(response.Item2), WebSocketMessageType.Text, true, CancellationToken.None);
                                 break;
+
+                            // The second item is sent to everyone
                             case Actions.Broadcast:
                                 await BroadcastMessage(response.Item2);
                                 break;
+
+                            // Connects with player with name the same as that in the second item of the response.
                             case Actions.ConnectWith:
 
                                 client2 = Clients.FirstOrDefault(kvp => kvp.Value.Name == response.Item2).Value;
@@ -102,9 +111,11 @@ namespace tic_tac_toe_Websocket
                                 await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes(response.Item2), WebSocketMessageType.Text, true, CancellationToken.None);
 
                                 break;
+
+                            // Messages other player in the game.
                             case Actions.MessageOther:
 
-                                Game game = Games.FirstOrDefault(game => game.IsPlayer(client));
+                                game = Games.FirstOrDefault(game => game.IsPlayer(client));
 
                                 if (game == default)
                                 {
@@ -115,9 +126,28 @@ namespace tic_tac_toe_Websocket
                                 await game.GetOther(client).WebSocket.SendAsync(Encoding.UTF8.GetBytes(response.Item2), WebSocketMessageType.Text, true, CancellationToken.None);
 
                                 break;
+
+                            // Informs the other of the move made
                             case Actions.InformOther:
-                                throw new NotImplementedException();
+                                game = Games.FirstOrDefault(game => game.IsPlayer(client));
+
+                                if (game == default)
+                                {
+                                    await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes("\"Type\":\"Error\", \"Errors\":[\"You aren't in a game.\"]"), WebSocketMessageType.Text, true, CancellationToken.None);
+                                    continue;
+                                }
+
+                                if (!game.IsValidMove(Convert.ToInt32(response.Item2)))
+                                {
+                                    await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes("\"Type\":\"Error\", \"Errors\":[\"Move isn't valid\"]"), WebSocketMessageType.Text, true, CancellationToken.None);
+                                    continue;
+                                } else
+                                {
+                                    await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes($"\"Type\":\"Message\", \"Move\":\"{response.Item2}\""), WebSocketMessageType.Text, true, CancellationToken.None);
+                                }
                                 break;
+
+                            // Messages other player.
                             case Actions.Message:
 
                                 string[] temp = response.Item2.Split(';');
@@ -136,6 +166,7 @@ namespace tic_tac_toe_Websocket
 
                                 client2.WebSocket.SendAsync(Encoding.UTF8.GetBytes(msg), WebSocketMessageType.Text, true, CancellationToken.None);
                                 break;
+
                             default:
                                 break;
                         }

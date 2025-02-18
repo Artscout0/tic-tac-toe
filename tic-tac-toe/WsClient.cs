@@ -11,6 +11,8 @@ namespace tic_tac_toe
         private ClientWebSocket WS;
         private CancellationTokenSource CTS;
 
+        public WebSocketState WebSocketState { get => WS?.State ?? WebSocketState.None; }
+
         public Action<string> OnReceive;
 
         public async Task ConnectAsync(string url)
@@ -81,7 +83,7 @@ namespace tic_tac_toe
 
                     // Debug it, and invoke a message for all listeners. 
                     Debug.WriteLine($"Message received: {receivedMessage}");
-                    OnReceive.Invoke(receivedMessage);
+                    OnReceive?.Invoke(receivedMessage);
                 }
             }
             catch (TaskCanceledException) { }

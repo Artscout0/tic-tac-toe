@@ -1,11 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tic-tac-toe", "tic-tac-toe\tic-tac-toe.csproj", "{5957EC3F-990F-4761-AC8B-6CA083D8DD45}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0EB5DA26-78A8-43EC-8D05-D6431D60CA8A} = {0EB5DA26-78A8-43EC-8D05-D6431D60CA8A}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tic-tac-toe-Websocket", "tic-tac-toe-Websocket\tic-tac-toe-Websocket.csproj", "{8079437A-A108-4F5A-9CF9-BE88103469CE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0EB5DA26-78A8-43EC-8D05-D6431D60CA8A} = {0EB5DA26-78A8-43EC-8D05-D6431D60CA8A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tic-tac-toe-Utils", "tic-tac-toe-Utils\tic-tac-toe-Utils.csproj", "{0EB5DA26-78A8-43EC-8D05-D6431D60CA8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +29,10 @@ Global
 		{8079437A-A108-4F5A-9CF9-BE88103469CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8079437A-A108-4F5A-9CF9-BE88103469CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8079437A-A108-4F5A-9CF9-BE88103469CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EB5DA26-78A8-43EC-8D05-D6431D60CA8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EB5DA26-78A8-43EC-8D05-D6431D60CA8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EB5DA26-78A8-43EC-8D05-D6431D60CA8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EB5DA26-78A8-43EC-8D05-D6431D60CA8A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
