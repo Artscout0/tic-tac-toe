@@ -1,0 +1,39 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: tic-tac-toe-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tic_tac_toe
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+
+  websocket:
+    build:
+      context: .
+      dockerfile: tic-tac-toe-Websocket/Dockerfile
+    container_name: tic-tac-toe-websocket
+    depends_on:
+      - mariadb
+    environment:
+      - DB_HOST=mariadb
+      - DB_USER=tictactoe_user
+      - DB_PASSWORD=tictactoe_password
+      - DB_NAME=tic_tac_toe
+    ports:
+      - "5000:5000"
+    networks:
+      - tic-tac-toe-network
+
+volumes:
+  db_data:
+
+networks:
+  tic-tac-toe-network:
+    driver: bridge
