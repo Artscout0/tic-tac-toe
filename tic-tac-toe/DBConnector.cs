@@ -5,8 +5,8 @@ namespace tic_tac_toe
 {
     public class DBConnector
     {
-        private static readonly string SERVER_HOST = "localhost";
-        private static readonly string DATABASE_NAME = "tic_tac_toe";
+        private static readonly string SERVER_HOST = "host.docker.internal"; // <- line that needs to be changed if put on a distant server
+        private static readonly string DATABASE_NAME = "tictactoe_online";
         private static readonly string USERNAME = "tictactoe_user";
         private static readonly string PASSWORD = "tictactoe_password";
 
@@ -19,7 +19,7 @@ namespace tic_tac_toe
 
         private static string GetConnectionString()
         {
-            return $"Server={SERVER_HOST};Database={DATABASE_NAME};Uid={USERNAME};Pwd={PASSWORD};";
+            return $"Server={SERVER_HOST};Port=3306;Database={DATABASE_NAME};Uid={USERNAME};Pwd={PASSWORD};";
         }
 
         private MySqlConnection GetConnection()

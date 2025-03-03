@@ -5,9 +5,9 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: tic_tac_toe
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: tictactoe_online
+      MYSQL_USER: tictactoe_user
+      MYSQL_PASSWORD: tictactoe_password
     ports:
       - "3306:3306"
     volumes:

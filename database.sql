@@ -32,5 +32,10 @@ CREATE TABLE game_states (
     FOREIGN KEY (player2Id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE USER 'tictactoe_user'@'localhost' IDENTIFIED BY 'tictactoe_password';
-GRANT SELECT, INSERT, DELETE on tictactoe_online.* TO 'tictactoe_user'@'localhost';
+-- CREATE USER 'tictactoe_user'@'localhost' IDENTIFIED BY 'tictactoe_password';
+-- GRANT SELECT, INSERT, DELETE on tictactoe_online.* TO 'tictactoe_user'@'localhost';
+
+DROP USER IF EXISTS 'tictactoe_user'@'%';
+CREATE USER 'tictactoe_user'@'%' IDENTIFIED BY 'tictactoe_password';
+GRANT ALL PRIVILEGES ON tictactoe_online.* TO 'tictactoe_user'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
