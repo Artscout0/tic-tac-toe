@@ -27,7 +27,7 @@ services:
       - DB_PASSWORD=tictactoe_password
       - DB_NAME=tic_tac_toe
     ports:
-      - "5000:5000"
+      - "8888:8888"
     networks:
       - tic-tac-toe-network
 
