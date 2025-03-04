@@ -9,6 +9,8 @@ namespace tic_tac_toe_Websocket
     {
         public static readonly ConcurrentDictionary<string, Client> Clients = new ConcurrentDictionary<string, Client>();
 
+        public static List<(Client, Client)> SuggestedGames =  new List<(Client, Client)>();
+
         public static List<Game> Games = new List<Game>();
 
         /// <summary>
@@ -19,7 +21,7 @@ namespace tic_tac_toe_Websocket
         static async Task Main()
         {
             HttpListener httpListener = new HttpListener();
-            httpListener.Prefixes.Add("http://localhost:8888/");
+            httpListener.Prefixes.Add("http://*:8888/");
             httpListener.Start();
 
             Console.WriteLine("Listening for WebSocket connections...");
@@ -28,6 +30,8 @@ namespace tic_tac_toe_Websocket
             {
                 HttpListenerContext context = await httpListener.GetContextAsync();
 
+                Console.WriteLine("Recieved connection");
+
                 // refuse non-websocket requests
                 if (!context.Request.IsWebSocketRequest)
                 {
@@ -35,6 +39,7 @@ namespace tic_tac_toe_Websocket
                     context.Response.StatusDescription = "Must be a websocket connection";
 
                     context.Response.Close();
+                    Console.WriteLine("Refused connection, as it isn't a websocket");
                     continue;
                 }
 
@@ -106,10 +111,40 @@ namespace tic_tac_toe_Websocket
                                     continue;
                                 }
 
+                                await client.WebSocket.SendAsync(
+                                    Encoding.UTF8.GetBytes(
+                                        $"Type: \"ChallengeIssued\""
+                                        ), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                                await client2.WebSocket.SendAsync(Encoding.UTF8.GetBytes(
+                                        $"Type: \"ChallengeReceived\", From: \"{client.Name}\""
+                                        ), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                                SuggestedGames.Add((client, client2));
+
+                                break;
+
+                            case Actions.Accept:
+
+                                var suggestedGame = SuggestedGames.FirstOrDefault(List => List.Item1.Name == response.Item2 && List.Item2 == client);
+
+                                if (suggestedGame == default)
+                                {
+                                    await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes("\"Type\":\"Error\", \"Errors\":[\"No challenge from this user.\"]"), WebSocketMessageType.Text, true, CancellationToken.None);
+                                    continue;
+                                }
+
+                                client2 = Clients.FirstOrDefault(kvp => kvp.Value.Name == response.Item2).Value;
+                                
+                                if (client2 == default)
+                                {
+                                    await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes("\"Type\":\"Error\", \"Errors\":[\"No such user.\"]"), WebSocketMessageType.Text, true, CancellationToken.None);
+                                    continue;
+                                }
+
+                                client.WebSocket.SendAsync(Encoding.UTF8.GetBytes("\"Type\":\"Message\", \"Message\":\"Challenge accepted.\", \"From\": \"\""), WebSocketMessageType.Text, true, CancellationToken.None);
+
                                 Games.Add(new Game(client, client2));
-
-                                await client.WebSocket.SendAsync(Encoding.UTF8.GetBytes(response.Item2), WebSocketMessageType.Text, true, CancellationToken.None);
-
                                 break;
 
                             // Messages other player in the game.

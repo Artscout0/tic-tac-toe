@@ -5,21 +5,29 @@ namespace tic_tac_toe
 {
     public class DBConnector
     {
-        private static readonly string SERVER_HOST = "host.docker.internal"; // <- line that needs to be changed if put on a distant server
+        private static string ServerHost = ""; // <- line that needs to be changed if put on a distant server
         private static readonly string DATABASE_NAME = "tictactoe_online";
         private static readonly string USERNAME = "tictactoe_user";
         private static readonly string PASSWORD = "tictactoe_password";
 
         private static readonly Lazy<DBConnector> _instance = new(() => new DBConnector());
-        private static readonly object _lock = new();
 
-        private DBConnector() { }
+        private DBConnector()
+        {
+            if (!File.Exists("hostname.txt"))
+            {
+                ServerHost = "host.docker.internal";
+            } else
+            {
+                ServerHost = File.ReadAllText("hostname.txt").Trim().ToLower();
+            }
+        }
 
         public static DBConnector Instance => _instance.Value;
 
         private static string GetConnectionString()
         {
-            return $"Server={SERVER_HOST};Port=3306;Database={DATABASE_NAME};Uid={USERNAME};Pwd={PASSWORD};";
+            return $"Server={ServerHost};Port=3306;Database={DATABASE_NAME};Uid={USERNAME};Pwd={PASSWORD};";
         }
 
         private MySqlConnection GetConnection()
