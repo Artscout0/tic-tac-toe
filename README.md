@@ -2,6 +2,11 @@
 
 Tic Tac Toe online, using C#, Docker, and a MariaDB database.
 
+## Useful links
+
+- [Installation guide](installation.md)
+- [User documentation](UserDocumentation.md)
+
 ## Implementation
 
 3 things are needed to make this run:
@@ -29,10 +34,10 @@ For moves, data is as follows:
 ````json
 {
     "Type": "Move",
-    "Move": "00000"
+    "Payload": "00000"
 }
 ```
 
-Where the move integer represents the move, in base 10, which will be then converted to base 3, and be used to represent the board.
+Where the payload integer represents the move, in base 10, which will be then converted to base 3, and be used to represent the board.
 
 For anything else, I haven't decided yet.
