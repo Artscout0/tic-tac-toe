@@ -23,32 +23,42 @@ namespace tic_tac_toe
         {
             InitializeComponent();
 
-            try
+            // If no username is provided, we're playing offline.
+            if (usr == "")
             {
-                // Can connect => works
-                _manager = new GameManagerOnline();
-                //MessageBox.Show("Connected to server", "Debug message", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch
-            {
-                MessageBox.Show("Failed to connect to online server!\nYou can still play localy.", "Can't connect to server!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                // Can't connect => still works, but only localy.
                 _manager = new GameManager();
             }
+            else
+            {
+                try
+                {
+                    // Can connect => works
+                    _manager = new GameManagerOnline();
+                }
+                catch
+                {
+                    MessageBox.Show("Failed to connect to online server!\nYou can still play localy.", "Can't connect to server!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    // Can't connect => still works, but only localy.
+                    _manager = new GameManager();
+                }
+            }
+
             _username = usr;
 
             if (_manager is GameManagerOnline)
             {
-                GameManagerOnline manager = (GameManagerOnline) _manager;
+                GameManagerOnline manager = (GameManagerOnline)_manager;
                 manager.OnDataUpdated += UpdateDisplays;
+                manager.Login(usr);
                 manager.GetConnected();
-                
             }
         }
 
         public void onBtnClick(object sender, EventArgs e)
         {
+            if (!_manager.CanPlay) return;
+
             Button clicked = sender as Button;
             int i = Convert.ToInt32(clicked.Name[clicked.Name.Length - 1] - '0') - 1;
 
@@ -111,10 +121,56 @@ namespace tic_tac_toe
 
         /// <summary>
         /// Called when important data, such as who is online, is updated, and updates the displays accordigly.
+        /// <br/>
+        /// Only useful if online.
         /// </summary>
         private void UpdateDisplays()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Called");
+
+            if (!(_manager is GameManagerOnline))
+            {
+                return;
+            }
+            GameManagerOnline manager = (GameManagerOnline)_manager;
+            Console.WriteLine("Is online");
+
+            // Update the list of images / current game
+            DisplayImageList(manager.Images);
+
+            // Update the list of online people.
+            gbChatboxes.Controls.OfType<Button>()
+                .Where(x => x.Name != "btnPlaySolo" && x.Parent == gbChatboxes)
+                .ToList()
+                .ForEach(x =>
+                {
+                    Debug.WriteLine($"Button: {x.Name}, Parent: {x.Parent?.Name}");
+                    x.Dispose();  // Or replace with x.Visible = false; depending on your goal
+                });
+
+            foreach (string name in manager.OnlinePeople)
+            {
+                Button btn = new Button();
+                btn.Text = name;
+                btn.Name = $"btn{name}";
+                btn.Click += (sender, e) =>
+                {
+                    manager.Challenge(name);
+                };
+
+                MessageBox.Show("Unfortunatly, the chat and challenge features are not implemented yet.", "Not implemented", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void btnReloadList_Click(object sender, EventArgs e)
+        {
+            if (!(_manager is GameManagerOnline))
+            {
+                return;
+            }
+            GameManagerOnline manager = (GameManagerOnline)_manager;
+
+            manager.GetConnected();
         }
     }
 }

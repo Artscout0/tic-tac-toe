@@ -103,6 +103,34 @@ namespace tic_tac_toe_Websocket
                     // Handled differently, therefore not packaged as a response
                     return (Actions.ConnectWith, messageObject.Challenged);
 
+                case "AcceptChallenge":
+
+                    if (Name == null)
+                    {
+                        response.Type = "Error";
+                        response.Errors = new List<string> { "Must be logged in with a name to challenge someone" };
+                    }
+
+                    if (messageObject.Challenged == null)
+                    {
+                        response.Type = "Error";
+                        if (response.Errors == null)
+                        {
+                            response.Errors = new List<string> { "Username of challenged user must be provided" };
+                        }
+                        else
+                        {
+                            response.Errors.Add("Username of challenged user must be provided");
+                        }
+                    }
+
+                    if (response.Type == "Error")
+                    {
+                        return (Actions.Response, JsonSerializer.Serialize(response, options));
+                    }
+
+                    return (Actions.Accept, messageObject.Challenged);
+
                 // Send someone a message
                 case "MessageOther":
 

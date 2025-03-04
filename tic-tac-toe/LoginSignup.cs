@@ -10,12 +10,6 @@ namespace tic_tac_toe
         public LoginSignup()
         {
             InitializeComponent();
-        }
-
-        private void btnLogin_Click(object sender, EventArgs e)
-        {
-            // partly taken from https://stackoverflow.com/a/10402129
-            DBConnector db = DBConnector.Instance;
 
             if (!DBConnector.TestConnection())
             {
@@ -28,6 +22,12 @@ namespace tic_tac_toe
 
                 return;
             }
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            // partly taken from https://stackoverflow.com/a/10402129
+            DBConnector db = DBConnector.Instance;
 
             if (txtUsername.Text.Trim() == string.Empty || txtPassword.Text.Trim() == string.Empty)
             {

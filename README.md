@@ -31,7 +31,7 @@ For any data to actually be stored you'll still need to use the database.
 
 For moves, data is as follows:
 
-````json
+```json
 {
     "Type": "Move",
     "Payload": "00000"

@@ -12,7 +12,7 @@ namespace tic_tac_toe
                                                     0, 0, 0, 
                                                     0, 0, 0 };
 
-        public Bitmap[] Images { get => IntToImages(boardDataToB10(_tileData)).Item1; }
+        public Bitmap[] Images { get => IntToImages(BoardDataToB10(_tileData)).Item1; }
 
         public int this[int index]
         {
@@ -25,6 +25,8 @@ namespace tic_tac_toe
                 _tileData[index] = (short)value;
             }
         }
+
+        public bool CanPlay = true;
 
         public int CheckForVictory()
         {
@@ -96,7 +98,7 @@ namespace tic_tac_toe
         /// </summary>
         /// <param name="nums"></param>
         /// <returns></returns>
-        public static int boardDataToB10(short[] nums)
+        public static int BoardDataToB10(short[] nums)
         {
             string num = string.Join("", nums);
             return Utils.ChangeIntBase(Convert.ToInt32(num), 3, 10);

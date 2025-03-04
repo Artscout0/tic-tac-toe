@@ -30,7 +30,8 @@
         {
             tabControl1 = new TabControl();
             tpChats = new TabPage();
-            groupBox1 = new GroupBox();
+            btnReloadList = new Button();
+            gbChatboxes = new GroupBox();
             btnPlaySolo = new Button();
             tpGame = new TabPage();
             img9 = new Button();
@@ -44,7 +45,7 @@
             img1 = new Button();
             tabControl1.SuspendLayout();
             tpChats.SuspendLayout();
-            groupBox1.SuspendLayout();
+            gbChatboxes.SuspendLayout();
             tpGame.SuspendLayout();
             SuspendLayout();
             // 
@@ -61,7 +62,8 @@
             // 
             // tpChats
             // 
-            tpChats.Controls.Add(groupBox1);
+            tpChats.Controls.Add(btnReloadList);
+            tpChats.Controls.Add(gbChatboxes);
             tpChats.Location = new Point(4, 24);
             tpChats.Name = "tpChats";
             tpChats.Padding = new Padding(3);
@@ -70,17 +72,27 @@
             tpChats.Text = "Chat";
             tpChats.UseVisualStyleBackColor = true;
             // 
-            // groupBox1
+            // btnReloadList
             // 
-            groupBox1.AutoSize = true;
-            groupBox1.Controls.Add(btnPlaySolo);
-            groupBox1.Dock = DockStyle.Left;
-            groupBox1.Location = new Point(3, 3);
-            groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(124, 647);
-            groupBox1.TabIndex = 0;
-            groupBox1.TabStop = false;
-            groupBox1.Text = "Chats";
+            btnReloadList.Location = new Point(975, 6);
+            btnReloadList.Name = "btnReloadList";
+            btnReloadList.Size = new Size(75, 23);
+            btnReloadList.TabIndex = 1;
+            btnReloadList.Text = "Reload List";
+            btnReloadList.UseVisualStyleBackColor = true;
+            btnReloadList.Click += btnReloadList_Click;
+            // 
+            // gbChatboxes
+            // 
+            gbChatboxes.AutoSize = true;
+            gbChatboxes.Controls.Add(btnPlaySolo);
+            gbChatboxes.Dock = DockStyle.Left;
+            gbChatboxes.Location = new Point(3, 3);
+            gbChatboxes.Name = "gbChatboxes";
+            gbChatboxes.Size = new Size(124, 647);
+            gbChatboxes.TabIndex = 0;
+            gbChatboxes.TabStop = false;
+            gbChatboxes.Text = "Chats";
             // 
             // btnPlaySolo
             // 
@@ -203,7 +215,7 @@
             tabControl1.ResumeLayout(false);
             tpChats.ResumeLayout(false);
             tpChats.PerformLayout();
-            groupBox1.ResumeLayout(false);
+            gbChatboxes.ResumeLayout(false);
             tpGame.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -222,7 +234,8 @@
         private Button img3;
         private Button img2;
         private Button img1;
-        private GroupBox groupBox1;
+        private GroupBox gbChatboxes;
         private Button btnPlaySolo;
+        private Button btnReloadList;
     }
 }
